@@ -19,8 +19,10 @@ const TodoList = () => {
     setInputText(e.target.value);
   };
 
-  const handleAddTodo = async (e) => {
-    e.preventDefault();
+  const handleAddTodo = async () => {
+    if (inputText === ""){
+      return alert("ga bisa kosong brok");
+    }
     const response = await axios.post("http://localhost:2000/todos", {
       title: inputText,
       isDone: false,
@@ -32,7 +34,7 @@ const TodoList = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:2000/todos/${id}`);
-      setTodos(todos.filter(todo => todo.id !== id));
+      setTodos(todos.filter((todo) => todo.id !== id));
     } catch (error) {
       console.log(error);
     }
@@ -40,16 +42,30 @@ const TodoList = () => {
 
   const handleisDone = async (id, isDone) => {
     try {
-      await axios.patch(`http://localhost:2000/todos/${id}`, { isDone: !isDone });
-      setTodos(todos.map(todo => todo.id === id ? { ...todo, isDone: !isDone } : todo));
+      await axios.patch(`http://localhost:2000/todos/${id}`, {
+        isDone: !isDone,
+      });
+      setTodos(
+        todos.map((todo) =>
+          todo.id === id ? { ...todo, isDone: !isDone } : todo
+        )
+      );
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleAddTodo();
     }
   };
 
   useEffect(() => {
     getTodos();
   }, []);
+
+  const doneCount = todos.filter((todo) => todo.isDone).length;
 
   return (
     <div>
@@ -63,14 +79,28 @@ const TodoList = () => {
                 checked={todo.isDone}
                 onChange={() => handleisDone(todo.id, todo.isDone)}
               />
-              <span style={{ textDecoration: todo.isDone ? 'line-through' : 'none' }}>{todo.title}</span>
+              <span
+                style={{
+                  textDecoration: todo.isDone ? "line-through" : "none",
+                }}
+              >
+                {todo.title}
+              </span>
               <button onClick={() => handleDelete(todo.id)}>Delete</button>
             </div>
           );
         })}
       </div>
       <div>
-        <input type="text" value={inputText} onChange={handleChange} />
+        <p>Done : {doneCount}</p>
+      </div>
+      <div>
+        <input
+          type="text"
+          value={inputText}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+        />
         <button onClick={handleAddTodo}>Add</button>
       </div>
     </div>
