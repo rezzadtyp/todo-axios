@@ -20,7 +20,7 @@ const TodoList = () => {
   };
 
   const handleAddTodo = async () => {
-    if (inputText === ""){
+    if (inputText === "") {
       return alert("ga bisa kosong brok");
     }
     const response = await axios.post("http://localhost:2000/todos", {
